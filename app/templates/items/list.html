@@ -3,7 +3,71 @@
 {% block content %}
 <section class="card">
   <h2>{{ t("items.list_title") }}</h2>
-  <p class="muted">{{ t("items.list_coming") }}</p>
-  <a class="btn" href="/items/new">{{ t("items.new_title") }}</a>
+  <form method="get" action="/items" class="row" style="flex-wrap:wrap; gap:.5rem; align-items:end;">
+    <label>
+      <span>{{ t("items.search_label") }}</span>
+      <input type="text" name="q" value="{{ params.q }}" maxlength="80">
+    </label>
+    <label>
+      <span>{{ t("items.category_label") }}</span>
+      <select name="category_id">
+        <option value="">—</option>
+        {% for c in categories %}
+          <option value="{{ c.id }}" {% if params.category_id == c.id %}selected{% endif %}>
+            {{ c.name }}{% if c.sensitive %} ({{ t("items.sensitive_short") }}){% endif %}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>{{ t("items.place_label") }}</span>
+      <select name="place_id">
+        <option value="">—</option>
+        {% for p in places %}
+          <option value="{{ p.id }}" {% if params.place_id == p.id %}selected{% endif %}>{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>{{ t("items.date_from_label") }}</span>
+      <input type="date" name="date_from" value="{{ params.date_from.isoformat() if params.date_from else '' }}">
+    </label>
+    <label>
+      <span>{{ t("items.date_to_label") }}</span>
+      <input type="date" name="date_to" value="{{ params.date_to.isoformat() if params.date_to else '' }}">
+    </label>
+    <button class="btn" type="submit">{{ t("items.search_action") }}</button>
+    <a class="btn" href="/items/new">{{ t("items.new_title") }}</a>
+  </form>
+  <p class="muted">{{ result.total }} result(s)</p>
+  {% if result.items %}
+    <ul class="items">
+      {% for item in result.items %}
+        {% set cat = result.categories.get(item.category_id) %}
+        {% set place = result.places.get(item.place_id) %}
+        <li>
+          <a href="/items/{{ item.id }}">
+            {% if cat and cat.sensitive %}
+              <strong>[{{ t("items.sensitive_short") }}]</strong>
+              {{ cat.name }}{% if place %} — {{ place.name }}{% endif %}
+              <p class="muted">{{ t("items.sensitive_text") }}</p>
+            {% else %}
+              <strong>{{ cat.name if cat else '—' }}</strong>
+              {% if place %} — {{ place.name }}{% endif %}
+              <p>{{ item.description[:120] }}</p>
+            {% endif %}
+            <p class="muted">{{ item.date_found.isoformat() }} · {% if item.status.value == 'unclaimed' %}{{ t("items.status_unclaimed") }}{% elif item.status.value == 'claim_approved' %}{{ t("items.status_claim_approved") }}{% else %}{{ t("items.status_open") }}{% endif %}</p>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+    <nav class="pagination">
+      {% if result.page > 1 %}<a href="?q={{ params.q }}&page={{ result.page - 1 }}">&laquo; {{ t("items.prev") }}</a>{% endif %}
+      <span>{{ result.page }} / {{ result.pages }}</span>
+      {% if result.page < result.pages %}<a href="?q={{ params.q }}&page={{ result.page + 1 }}">{{ t("items.next") }} &raquo;</a>{% endif %}
+    </nav>
+  {% else %}
+    <p class="muted">{{ t("items.no_results") }}</p>
+  {% endif %}
 </section>
 {% endblock %}

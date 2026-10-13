@@ -146,14 +146,40 @@ async def create_item(
 def list_items(
     request: Request,
     user: Optional[User] = Depends(get_current_user_optional),
+    session: Session = Depends(get_session),
 ):
-    """Stub list. Real search lands in M5."""
     if user is None or user.status.value != "approved":
         return RedirectResponse(url="/login", status_code=302)
+    from app.items.search import (
+        SearchParams,
+        parse_date,
+        parse_int,
+        search,
+    )
+    from sqlmodel import select as _sel
+
+    params = SearchParams(
+        q=request.query_params.get("q", ""),
+        category_id=parse_int(request.query_params.get("category_id")),
+        place_id=parse_int(request.query_params.get("place_id")),
+        date_from=parse_date(request.query_params.get("date_from", "")),
+        date_to=parse_date(request.query_params.get("date_to", "")),
+        page=parse_int(request.query_params.get("page")) or 1,
+        sort=request.query_params.get("sort", "date_found_desc"),
+    )
+    result = search(session, params)
+    cats = session.exec(_sel(Category).where(Category.is_active.is_(True)).order_by(Category.name)).all()
+    places = session.exec(_sel(Place).where(Place.is_active.is_(True)).order_by(Place.name)).all()
     return request.app.state.render(
         request,
         "items/list.html",
-        {"current_user": user},
+        {
+            "current_user": user,
+            "result": result,
+            "params": params,
+            "categories": cats,
+            "places": places,
+        },
     )
 
 
@@ -164,6 +190,11 @@ def view_item(
     user: Optional[User] = Depends(get_current_user_optional),
     session: Session = Depends(get_session),
 ):
+    # F5.4: logged-out requests to a member item page return the login
+    # page without leaking that the item exists. We redirect (302) to
+    # /login and never render any item detail.
+    if user is None or user.status.value != "approved":
+        return RedirectResponse(url="/login", status_code=302)
     item = session.get(FoundItem, item_id)
     if item is None or item.hidden or item.status.value == "withdrawn":
         # Don't leak existence to non-owners
