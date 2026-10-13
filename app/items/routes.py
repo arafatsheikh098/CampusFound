@@ -211,6 +211,34 @@ def view_item(
         and (user.is_moderator or user.id == item.finder_id)
     )
     can_edit = user is not None and (user.is_moderator or user.id == item.finder_id)
+
+    # F7: contact details revealed only between custodian and the
+    # claimant of the currently approved claim.
+    approved_for_me = None
+    if user is not None and item.approved_claim_id is not None:
+        from app.models.claim import Claim, ClaimStatus
+        from app.models.user import User as UserModel
+
+        claim = session.get(Claim, item.approved_claim_id)
+        if (
+            claim is not None
+            and claim.status == ClaimStatus.APPROVED
+            and (user.id == claim.claimant_id or user.is_moderator or user.id == item.finder_id)
+        ):
+            custodian = session.get(UserModel, item.finder_id)
+            claimant = session.get(UserModel, claim.claimant_id)
+            # The viewer sees the OTHER party's mobile.
+            if user.id == item.finder_id:
+                other_mobile = claimant.mobile if claimant else ""
+            elif user.id == claim.claimant_id:
+                other_mobile = custodian.mobile if custodian else ""
+            else:  # moderator
+                other_mobile = claimant.mobile if claimant else ""
+            approved_for_me = {
+                "other_mobile": other_mobile,
+                "handover_note": item.handover_note,
+            }
+
     return request.app.state.render(
         request,
         "items/view.html",
@@ -221,6 +249,7 @@ def view_item(
             "current_user": user,
             "can_see_answers": can_see_answers,
             "can_edit": can_edit,
+            "approved_claim_for_me": approved_for_me,
         },
     )
 

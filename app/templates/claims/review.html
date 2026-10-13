@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ t("claims.review_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("claims.review_title") }}</h2>
+  <p>{{ t("claims.claimant") }}: {{ claimant.full_name }}</p>
+  <h3>{{ t("claims.qa_title") }}</h3>
+  <ol>
+    {% for q in questions %}
+      <li>
+        <strong>{{ q.question }}</strong><br>
+        <span class="muted">{{ t("claims.private_answer") }}: <em>{{ q.answer }}</em></span><br>
+        <span>{{ t("claims.claimant_answer") }}: <em>{{ answers_by_qid.get(q.id, '') }}</em></span>
+      </li>
+    {% endfor %}
+  </ol>
+  {% if claim.note %}
+    <p><strong>{{ t("claims.note_label") }}:</strong> {{ claim.note }}</p>
+  {% endif %}
+  <form method="post" action="/claims/{{ claim.id }}/approve" style="display:inline;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn primary" type="submit">{{ t("claims.approve") }}</button>
+  </form>
+  <form method="post" action="/claims/{{ claim.id }}/reject" style="display:inline;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="text" name="reason" maxlength="300" placeholder="{{ t('claims.reason_placeholder') }}">
+    <button class="btn danger" type="submit">{{ t("claims.reject") }}</button>
+  </form>
+</section>
+{% endblock %}

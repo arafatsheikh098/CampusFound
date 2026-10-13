@@ -14,7 +14,7 @@
       </div>
     {% endif %}
   {% endif %}
-  {% if item.handover_note %}
+  {% if item.handover_note and (can_edit or approved_claim_for_me) %}
     {% if item.custody.value == 'office' %}
       <p><strong>{{ t("items.handover_office") }}:</strong> {{ item.handover_note }}</p>
     {% else %}
@@ -29,6 +29,13 @@
   {% else %}
     <p class="muted">{{ t("items.questions_owner_only") }}</p>
   {% endif %}
+  {% if approved_claim_for_me %}
+    <p><strong>{{ t("items.contact_revealed") }}</strong></p>
+    <ul>
+      {% if approved_claim_for_me.other_mobile %}<li>{{ t("items.mobile") }}: {{ approved_claim_for_me.other_mobile }}</li>{% endif %}
+      {% if approved_claim_for_me.handover_note %}<li>{{ t("items.handover_note") }}: {{ approved_claim_for_me.handover_note }}</li>{% endif %}
+    </ul>
+  {% endif %}
   {% if can_edit %}
     <div class="row">
       <a class="btn" href="/items/{{ item.id }}/edit">{{ t("items.edit") }}</a>
@@ -37,6 +44,9 @@
         <button class="btn danger" type="submit">{{ t("items.withdraw") }}</button>
       </form>
     </div>
+  {% endif %}
+  {% if current_user and not can_edit and item.status.value == 'open' %}
+    <a class="btn primary" href="/items/{{ item.id }}/claim">{{ t("items.claim_this") }}</a>
   {% endif %}
 </section>
 {% endblock %}
