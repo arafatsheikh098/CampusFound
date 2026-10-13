@@ -1,0 +1,12 @@
+line-length = 110
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",  # line too long (we have long strings)
+    "B008",  # function call in default argument (FastAPI uses Depends() this way)
+    "B904",  # raise from in except
+    "E402",  # module-level import not at top (needed for circular imports in FastAPI)
+    "F401",  # unused import (re-exports for tests)
+]

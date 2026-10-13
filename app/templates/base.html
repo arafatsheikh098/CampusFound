@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ t("site.title") }}{% endblock %}</title>
+  <meta name="referrer" content="no-referrer">
+  <script src="/static/htmx/htmx.min.js"></script>
+  <script>
+    // Disable HTMX's eval-based templating. We never use hx-vals with JS
+    // expressions and we want to keep eval out of the page entirely.
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.htmx && htmx.config) { htmx.config.allowEval = false; }
+    });
+  </script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; padding: 0; background: #f6f6f7; color: #1c1c1e; }
+    header { background: #fff; border-bottom: 1px solid #d1d1d6; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    header h1 { font-size: 1.1rem; margin: 0; }
+    header a { color: #1c1c1e; text-decoration: none; margin-left: 12px; }
+    main { max-width: 720px; margin: 16px auto; padding: 0 16px; }
+    .card { background: #fff; border: 1px solid #d1d1d6; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .banner { background: #ffd60a; color: #1c1c1e; text-align: center; padding: 8px; font-weight: 600; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    label { display: block; font-size: 0.9rem; margin-top: 8px; }
+    input, select, textarea { width: 100%; padding: 8px; border: 1px solid #d1d1d6; border-radius: 6px; box-sizing: border-box; font: inherit; }
+    textarea { min-height: 80px; }
+    .btn { display: inline-block; background: #007aff; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; text-decoration: none; }
+    .btn.secondary { background: #e5e5ea; color: #1c1c1e; }
+    .btn.danger { background: #ff3b30; }
+    .err { color: #b00020; }
+    .ok { color: #1c7c2c; }
+    .muted { color: #6b6b70; font-size: 0.9rem; }
+    .flash { padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; }
+    .flash.err { background: #ffe5e5; }
+    .flash.ok { background: #e6f5e9; }
+    nav.lang { display: flex; gap: 6px; align-items: center; }
+    nav.lang a { color: #007aff; }
+    ul.items { list-style: none; padding: 0; }
+    ul.items li { border-bottom: 1px solid #e5e5ea; padding: 8px 0; }
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; background: #e5e5ea; }
+    .badge.sensitive { background: #ffd60a; }
+  </style>
+</head>
+<body>
+  {% if demo_mode %}
+  <div class="banner" data-testid="demo-banner">{{ t("site.demo_banner") }}</div>
+  {% endif %}
+  <header>
+    <h1><a href="/" style="color: inherit; text-decoration: none;">{{ t("site.title") }}</a></h1>
+    <nav class="row" style="gap: 8px;">
+      {% if current_user %}
+        <a href="/items">{{ t("site.search") }}</a>
+        <a href="/lost/new">{{ t("lost.new_title") if false else "Lost something" }}</a>
+        <a href="/notifications">{{ t("site.notifications") }}{% if unread_count %} <span class="badge">{{ unread_count }}</span>{% endif %}</a>
+        {% if current_user.is_moderator %}<a href="/moderation">{{ t("site.moderation") }}</a>{% endif %}
+        <form method="post" action="/logout" style="display: inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="btn secondary" type="submit">{{ t("site.logout") }}</button>
+        </form>
+      {% else %}
+        <a href="/login">{{ t("site.login") }}</a>
+        <a href="/signup">{{ t("site.signup") }}</a>
+      {% endif %}
+      <nav class="lang">
+        <form method="post" action="/lang/en" style="display: inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn secondary" type="submit" {% if lang == "en" %}disabled{% endif %}>{{ t("site.english") }}</button></form>
+        <form method="post" action="/lang/bn" style="display: inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn secondary" type="submit" {% if lang == "bn" %}disabled{% endif %}>{{ t("site.bangla") }}</button></form>
+      </nav>
+    </nav>
+  </header>
+  <main>
+    {% if flash_error %}<div class="flash err">{{ flash_error }}</div>{% endif %}
+    {% if flash_ok %}<div class="flash ok">{{ flash_ok }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: campusfound
+      POSTGRES_PASSWORD: campusfound
+      POSTGRES_DB: campusfound
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U campusfound -d campusfound"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENV: development
+      SECRET_KEY: change-me-in-production-please-use-a-long-random-string
+      DATABASE_URL: postgresql+psycopg://campusfound:campusfound@db:5432/campusfound
+      TRUSTED_HOSTS: "*"
+      DEMO_MODE: "1"
+    ports:
+      - "8000:8000"
+
+volumes:
+  db_data:

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ t("error.404_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>404</h2>
+  <p>{{ t("error.404_text") }}</p>
+  <a class="btn" href="/">{{ t("site.back") }}</a>
+</section>
+{% endblock %}

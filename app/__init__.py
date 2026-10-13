@@ -1,0 +1,1 @@
+"""CampusFound app package."""

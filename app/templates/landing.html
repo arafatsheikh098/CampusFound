@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("site.tagline") }}</h2>
+  <p class="muted">{{ t("site.how_text") }}</p>
+  <div class="row">
+    <a class="btn" href="/signup">{{ t("site.signup") }}</a>
+    <a class="btn secondary" href="/login">{{ t("site.login") }}</a>
+  </div>
+</section>
+{% endblock %}
