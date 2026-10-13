@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ t("lost.view_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("lost.view_title") }}</h2>
+  <p>{{ report.description }}</p>
+  <p class="muted">{{ t("lost.date_lost") }}: {{ report.date_lost.isoformat() }}</p>
+  <h3>{{ t("lost.matches_title") }}</h3>
+  {% if matches %}
+    <ul class="items">
+      {% for m in matches %}
+        <li>
+          <a href="/items/{{ m.other_id }}">{{ t("lost.match_item_link") }} #{{ m.other_id }}</a>
+          <p class="muted">score: {{ m.score }}
+            {% if m.same_place %} · {{ t("lost.match_same_place") }}{% endif %}
+            {% if m.days_apart is not none %} · {{ t("lost.match_days_apart") }}: {{ m.days_apart }}{% endif %}
+            {% if m.shared_keywords %} · {{ t("lost.match_keywords") }}: {{ m.shared_keywords | join(', ') }}{% endif %}
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">{{ t("lost.no_matches") }}</p>
+  {% endif %}
+  {% if current_user.id == report.owner_id or current_user.is_moderator %}
+    <div class="row">
+      <form method="post" action="/lost/{{ report.id }}/withdraw" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn" type="submit">{{ t("lost.withdraw") }}</button>
+      </form>
+      <form method="post" action="/lost/{{ report.id }}/mark-found" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn primary" type="submit">{{ t("lost.mark_found") }}</button>
+      </form>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

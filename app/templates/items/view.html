@@ -48,5 +48,20 @@
   {% if current_user and not can_edit and item.status.value == 'open' %}
     <a class="btn primary" href="/items/{{ item.id }}/claim">{{ t("items.claim_this") }}</a>
   {% endif %}
+  {% if lost_matches %}
+    <h3>{{ t("items.matches_title") }}</h3>
+    <ul class="items">
+      {% for m in lost_matches %}
+        <li>
+          <a href="/lost/{{ m.other_id }}">{{ t("items.match_lost_link") }} #{{ m.other_id }}</a>
+          <p class="muted">score: {{ m.score }}
+            {% if m.same_place %} · {{ t("items.match_same_place") }}{% endif %}
+            {% if m.days_apart is not none %} · {{ t("items.match_days_apart") }}: {{ m.days_apart }}{% endif %}
+            {% if m.shared_keywords %} · {{ t("items.match_keywords") }}: {{ m.shared_keywords | join(', ') }}{% endif %}
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 </section>
 {% endblock %}

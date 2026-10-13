@@ -215,6 +215,12 @@ def view_item(
     # F7: contact details revealed only between custodian and the
     # claimant of the currently approved claim.
     approved_for_me = None
+    lost_matches = []
+    if user is not None and (user.id == item.finder_id or user.is_moderator):
+        # Show possible matches to the finder (and moderators).
+        from app.matching.suggest import suggest_for_item
+
+        lost_matches = suggest_for_item(session, item, user)
     if user is not None and item.approved_claim_id is not None:
         from app.models.claim import Claim, ClaimStatus
         from app.models.user import User as UserModel
@@ -250,6 +256,7 @@ def view_item(
             "can_see_answers": can_see_answers,
             "can_edit": can_edit,
             "approved_claim_for_me": approved_for_me,
+            "lost_matches": lost_matches,
         },
     )
 

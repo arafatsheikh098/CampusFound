@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ t("lost.list_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{% if own_only %}{{ t("lost.mine_title") }}{% else %}{{ t("lost.list_title") }}{% endif %}</h2>
+  <a class="btn primary" href="/lost/new">{{ t("lost.new_title") }}</a>
+  {% if reports %}
+    <ul class="items">
+      {% for r in reports %}
+        <li>
+          <a href="/lost/{{ r.id }}">{{ r.description[:100] }}</a>
+          <p class="muted">{{ r.date_lost.isoformat() }} · {{ t("lost.status_open") if r.is_open else t("lost.status_closed") }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">{{ t("lost.none") }}</p>
+  {% endif %}
+</section>
+{% endblock %}
