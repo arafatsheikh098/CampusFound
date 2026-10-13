@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ t("claims.new_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("claims.new_title") }}</h2>
+  <p class="muted">{{ t("claims.intro") }}</p>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post" action="/items/{{ item.id }}/claim">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% for q in questions %}
+      <label>
+        <span>{{ q.question }}</span>
+        <input type="text" name="a{{ q.id }}" maxlength="200" required>
+      </label>
+    {% endfor %}
+    <label>
+      <span>{{ t("claims.note_label") }}</span>
+      <textarea name="note" maxlength="300" rows="2"></textarea>
+    </label>
+    <button class="btn primary" type="submit">{{ t("claims.submit") }}</button>
+    <a class="btn" href="/items/{{ item.id }}">{{ t("site.cancel") }}</a>
+  </form>
+</section>
+{% endblock %}

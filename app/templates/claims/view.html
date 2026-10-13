@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ t("claims.view_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("claims.view_title") }}</h2>
+  <p>{{ t("claims.status") }}: <strong>{{ claim.status.value }}</strong></p>
+  {% if is_claimant and claim.status.value == 'approved' %}
+    <p><strong>{{ t("claims.contact_unlocked") }}</strong></p>
+  {% endif %}
+  {% if is_claimant and claim.status.value in ('open', 'approved') %}
+    <form method="post" action="/claims/{{ claim.id }}/cancel" style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn" type="submit">{{ t("claims.cancel") }}</button>
+    </form>
+  {% endif %}
+  {% if is_claimant and claim.status.value == 'approved' %}
+    <form method="post" action="/claims/{{ claim.id }}/confirm-returned" style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn primary" type="submit">{{ t("claims.confirm_returned") }}</button>
+    </form>
+  {% endif %}
+  {% if is_custodian and claim.status.value == 'open' %}
+    <p><a class="btn primary" href="/claims/{{ claim.id }}/review">{{ t("claims.review") }}</a></p>
+  {% endif %}
+  {% if is_custodian and claim.status.value == 'approved' %}
+    <form method="post" action="/claims/{{ claim.id }}/confirm-returned" style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn primary" type="submit">{{ t("claims.confirm_returned") }}</button>
+    </form>
+  {% endif %}
+  {% if is_custodian %}
+    <h3>{{ t("claims.qa_title") }}</h3>
+    <ol>
+      {% for q in questions %}
+        <li>
+          <strong>{{ q.question }}</strong><br>
+          <span class="muted">{{ t("claims.private_answer") }}: <em>{{ q.answer }}</em></span><br>
+          <span>{{ t("claims.claimant_answer") }}: <em>{{ answers_by_qid.get(q.id, '') }}</em></span>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    {# claimant view: only show their own answers; private answers must NEVER leak #}
+    <h3>{{ t("claims.your_answers") }}</h3>
+    <ol>
+      {% for q in questions %}
+        <li>
+          <strong>{{ q.question }}</strong> &rarr; <em>{{ answers_by_qid.get(q.id, '') }}</em>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+  {% if claim.reason %}
+    <p><strong>{{ t("claims.reason") }}:</strong> {{ claim.reason }}</p>
+  {% endif %}
+</section>
+{% endblock %}
