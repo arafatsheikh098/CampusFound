@@ -27,16 +27,11 @@ def _isolated_settings(monkeypatch, tmp_path):
 
     get_settings.cache_clear()
 
-    # Re-build the engine against the new URL
-    from sqlmodel import SQLModel, create_engine
-
+    # Re-build the engine against the new URL using the app helper so the
+    # SQLModel metadata is bound to the same engine.
     from app import db as db_mod
-    from app.csrf import _key
 
-    db_mod.engine = create_engine(
-        f"sqlite:///{db_path}", connect_args={"check_same_thread": False}
-    )
-    db_mod.init_db()
+    db_mod.reset_engine(f"sqlite:///{db_path}")
 
     yield
 

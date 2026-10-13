@@ -1,6 +1,4 @@
 """Claim model: a member's attempt to recover a found item."""
-from __future__ import annotations
-
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional

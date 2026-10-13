@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ t("auth.signup_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("auth.signup_title") }}</h2>
+  {% if error %}<div class="flash err">{{ error }}</div>{% endif %}
+  <form method="post" action="/signup">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>{{ t("auth.full_name") }} <input name="full_name" required maxlength="120" value="{{ form.full_name if form else '' }}"></label>
+    <label>{{ t("auth.department") }} <input name="department" required maxlength="120" value="{{ form.department if form else '' }}"></label>
+    <label>{{ t("auth.session") }} <input name="batch_or_session" required maxlength="60" value="{{ form.batch_or_session if form else '' }}"></label>
+    <label>{{ t("auth.mobile") }} <input name="mobile" required placeholder="+8801XXXXXXXXX" value="{{ form.mobile if form else '' }}"></label>
+    <label>{{ t("auth.password") }} <input name="password" type="password" required minlength="8"></label>
+    <label><input type="checkbox" name="is_member_confirmed" value="1" required> {{ t("auth.confirm_member") }}</label>
+    <label><input type="checkbox" name="is_adult_confirmed" value="1" required> {{ t("auth.confirm_adult") }}</label>
+    <div class="row" style="margin-top: 12px;">
+      <button class="btn" type="submit">{{ t("site.signup") }}</button>
+      <a class="btn secondary" href="/login">{{ t("site.login") }}</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

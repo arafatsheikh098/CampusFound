@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ t("auth.pending_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("auth.pending_title") }}</h2>
+  <p>{{ t("auth.pending_text", name=name) }}</p>
+  <a class="btn secondary" href="/login">{{ t("site.login") }}</a>
+</section>
+{% endblock %}
