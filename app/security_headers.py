@@ -49,12 +49,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers.setdefault("X-Frame-Options", "DENY")
 
         if not request.cookies.get("cf_sid"):
+            from app.config import get_settings
+
+            is_prod = get_settings().is_production
             response.set_cookie(
                 "cf_sid",
                 sid,
                 httponly=True,
                 samesite="lax",
-                secure=False,
+                secure=is_prod,
                 max_age=60 * 60 * 24 * 7,
             )
         return response

@@ -80,7 +80,12 @@ def create_app() -> FastAPI:
             try:
                 with session_scope() as s:
                     ctx["unread_count"] = notif_svc.unread_count(s, cu.id)
-            except Exception:
+            except Exception:  # pragma: no cover — DB hiccup
+                import logging
+
+                logging.getLogger(__name__).exception(
+                    "render: unread_count lookup failed"
+                )
                 ctx["unread_count"] = 0
         return templates.TemplateResponse(template, ctx, status_code=status_code)
 

@@ -7,7 +7,8 @@ from app.auth import service as auth_svc
 from app.db import session_scope
 from app.items import service as item_svc
 from app.lost import service as lost_svc
-from app.matching.suggest import score_match, suggest_for_item, suggest_for_lost_report
+from app.matching.score import score_match
+from app.matching.suggest import suggest_for_item, suggest_for_lost_report
 from app.models.category import Category
 from app.models.lost_report import LostReport
 from app.models.place import Place

@@ -349,13 +349,10 @@ async def withdraw_item(
     if item is None:
         raise HTTPException(404, "item not found")
     try:
+        # withdraw_item() already drops photos per F4.5.
         item_svc.withdraw_item(session, item=item, by=user)
     except item_svc.ItemError as e:
         raise HTTPException(400, str(e))
-    # Photos for withdrawn posts are removed (F4.5).
-    from app.photos.service import delete_photos_for_item
-
-    delete_photos_for_item(session, item)
     return RedirectResponse(url="/items", status_code=302)
 
 

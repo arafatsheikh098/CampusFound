@@ -3,7 +3,20 @@ from __future__ import annotations
 
 from datetime import date
 
-from app.matching.suggest import score_match
+from app.matching.score import score_match
+
+
+def test_score_module_has_no_db_or_web_imports():
+    """F8.5: matching score must not import the web or DB layers."""
+    import inspect
+
+    import app.matching.score as score_mod
+
+    src = inspect.getsourcefile(score_mod)
+    assert src is not None
+    text = open(src).read()
+    for name in ("sqlmodel", "sqlalchemy", "fastapi", "starlette", "app.db", "app.models"):
+        assert name not in text, f"score module references {name}"
 
 
 def test_score_match_is_deterministic():
