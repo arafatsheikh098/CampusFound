@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ t("items.new_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("items.new_title") }}</h2>
+  {% if error %}<div class="flash err">{{ error }}</div>{% endif %}
+  <p class="muted">{{ t("items.guidance") }}</p>
+  <form method="post" action="/items">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>{{ t("items.category") }}
+      <select name="category_id" required>
+        {% for c in categories %}<option value="{{ c.id }}" {% if form.category_id == c.id %}selected{% endif %}>{{ c.name }}{% if c.sensitive %} ({{ t("categories.sensitive") }}){% endif %}</option>{% endfor %}
+      </select>
+    </label>
+    <label>{{ t("items.place") }}
+      <select name="place_id" required>
+        {% for p in places %}<option value="{{ p.id }}" {% if form.place_id == p.id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>{{ t("items.date_found") }} <input type="date" name="date_found" required value="{{ form.date_found or '' }}"></label>
+    <label>{{ t("items.description") }} <textarea name="description" maxlength="300" required>{{ form.description or '' }}</textarea></label>
+    <label>{{ t("items.handover_note") }} <textarea name="handover_note" maxlength="150">{{ form.handover_note or '' }}</textarea></label>
+    <label>{{ t("items.custody") }}
+      <select name="custody">
+        <option value="finder" {% if form.custody == 'finder' or not form.custody %}selected{% endif %}>{{ t("items.custody_finder") }}</option>
+        <option value="office" {% if form.custody == 'office' %}selected{% endif %}>{{ t("items.custody_office") }}</option>
+      </select>
+    </label>
+    <h3>{{ t("items.questions_title") }}</h3>
+    <p class="muted">{{ t("items.questions_help") }}</p>
+    <label>1. <input name="q1" maxlength="120" value="{{ form.q1 or '' }}"></label>
+    <label>{{ t("items.answer") }} 1 <input name="a1" maxlength="120" value="{{ form.a1 or '' }}"></label>
+    <label>2. <input name="q2" maxlength="120" value="{{ form.q2 or '' }}"></label>
+    <label>{{ t("items.answer") }} 2 <input name="a2" maxlength="120" value="{{ form.a2 or '' }}"></label>
+    <label>3. <input name="q3" maxlength="120" value="{{ form.q3 or '' }}"></label>
+    <label>{{ t("items.answer") }} 3 <input name="a3" maxlength="120" value="{{ form.a3 or '' }}"></label>
+    <div class="row" style="margin-top: 12px;">
+      <button class="btn" type="submit">{{ t("site.save") }}</button>
+      <a class="btn secondary" href="/items">{{ t("site.cancel") }}</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ t("items.list_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("items.list_title") }}</h2>
+  <p class="muted">{{ t("items.list_coming") }}</p>
+  <a class="btn" href="/items/new">{{ t("items.new_title") }}</a>
+</section>
+{% endblock %}

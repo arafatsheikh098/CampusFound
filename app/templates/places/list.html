@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ t("places.title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("places.title") }}</h2>
+  <ul>
+    {% for p in places %}<li>{{ p.name }} {% if not p.is_active %}<span class="muted">(inactive)</span>{% endif %}</li>{% endfor %}
+  </ul>
+  {% if is_moderator %}
+  <h3>{{ t("places.add") }}</h3>
+  <form method="post" action="/places">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>{{ t("places.name") }} <input name="name" required maxlength="120"></label>
+    <button class="btn" type="submit">{{ t("site.save") }}</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

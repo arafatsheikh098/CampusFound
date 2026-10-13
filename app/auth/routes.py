@@ -31,6 +31,7 @@ def _common_ctx(request: Request) -> dict:
         "t": lambda key, **kw: t(key, lang=_lang(request), **kw),
         "lang": _lang(request),
         "csrf_token": csrf_token_for(request),
+        "request": request,
     }
 
 
