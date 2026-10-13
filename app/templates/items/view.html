@@ -8,6 +8,11 @@
     <p>{{ t("items.sensitive_text") }}</p>
   {% else %}
     <p>{{ item.description }}</p>
+    {% if item.photos %}
+      <div class="photos">
+        {% for p in item.photos %}<img src="/photos/{{ p.id }}" alt="" loading="lazy">{% endfor %}
+      </div>
+    {% endif %}
   {% endif %}
   {% if item.handover_note %}
     {% if item.custody.value == 'office' %}

@@ -189,6 +189,10 @@ def withdraw_item(session: Session, *, item: FoundItem, by: User) -> FoundItem:
     session.add(item)
     session.commit()
     session.refresh(item)
+    # Drop photos per F4.5: photos for withdrawn posts are deleted.
+    from app.photos.service import delete_photos_for_item
+
+    delete_photos_for_item(session, item)
     write_audit(
         session,
         actor_id=by.id,

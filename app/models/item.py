@@ -53,6 +53,10 @@ class FoundItem(SQLModel, table=True):
         back_populates="item",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
+    photos: List["Photo"] = Relationship(
+        back_populates="item",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
 
 
 class VerificationQuestion(SQLModel, table=True):
