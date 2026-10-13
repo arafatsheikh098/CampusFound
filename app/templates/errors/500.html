@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ t("error.500_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>500</h2>
+  <p>{{ t("error.500_text") }}</p>
+  <a class="btn" href="/">{{ t("site.back") }}</a>
+</section>
+{% endblock %}
