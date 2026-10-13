@@ -165,6 +165,8 @@ def cmd_delete_my_data(args: argparse.Namespace) -> int:
 def cmd_seed_demo(args: argparse.Namespace) -> int:
     """Insert a small deterministic demo dataset. Idempotent."""
     init_db()
+    from app.items import service as item_svc
+
     now = datetime.utcnow()
     today = date.today()
     with session_scope() as session:
@@ -205,25 +207,73 @@ def cmd_seed_demo(args: argparse.Namespace) -> int:
             )
             session.add(m)
         # Two demo members
+        members = []
         for i, mobile in enumerate(("+8801722222222", "+8801733333333"), start=1):
-            if session.exec(
+            existing = session.exec(
                 select(User).where(User.mobile == mobile)
-            ).one_or_none() is None:
-                session.add(
-                    User(
-                        full_name=f"Demo Member {i}",
-                        department="CSE",
-                        batch_or_session="2024",
-                        mobile=mobile,
-                        password_hash="x",
-                        is_member_confirmed=True,
-                        is_adult_confirmed=True,
-                        status=AccountStatus.APPROVED,
-                        approved_at=now,
-                        display_name_snapshot=f"Demo Member {i}",
-                    )
+            ).one_or_none()
+            if existing is None:
+                u = User(
+                    full_name=f"Demo Member {i}",
+                    department="CSE",
+                    batch_or_session="2024",
+                    mobile=mobile,
+                    password_hash="x",
+                    is_member_confirmed=True,
+                    is_adult_confirmed=True,
+                    status=AccountStatus.APPROVED,
+                    approved_at=now,
+                    display_name_snapshot=f"Demo Member {i}",
                 )
+                session.add(u)
+                members.append(u)
+            else:
+                members.append(existing)
         session.commit()
+        # Demo found items (only if the user has none yet).
+        have_items = session.exec(
+            select(FoundItem).where(FoundItem.finder_id == members[0].id)
+        ).first()
+        if have_items is None:
+            wallet = session.exec(
+                select(Category).where(Category.name == "Wallets")
+            ).one_or_none()
+            books = session.exec(
+                select(Category).where(Category.name == "Books")
+            ).one_or_none()
+            library = session.exec(
+                select(Place).where(Place.name == "Library")
+            ).one_or_none()
+            cafeteria = session.exec(
+                select(Place).where(Place.name == "Cafeteria")
+            ).one_or_none()
+            if wallet and library:
+                item_svc.create_item(
+                    session,
+                    finder=members[0],
+                    category_id=wallet.id,
+                    place_id=library.id,
+                    date_found=today - timedelta(days=1),
+                    description="Brown leather wallet, no ID inside",
+                    handover_note="Meet at the library desk",
+                    custody_requested="finder",
+                    questions=["What color is the inner lining?"],
+                    answers=["red"],
+                )
+            if books and cafeteria:
+                item_svc.create_item(
+                    session,
+                    finder=members[1] if len(members) > 1 else members[0],
+                    category_id=books.id,
+                    place_id=cafeteria.id,
+                    date_found=today - timedelta(days=2),
+                    description="A copy of Clean Code, has a name on the first page",
+                    handover_note="",
+                    custody_requested="finder",
+                    questions=["What name is written inside?"],
+                    answers=["A. Karim"],
+                )
+            session.commit()
     print("seed-demo: ok")
     return 0
 

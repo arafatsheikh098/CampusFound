@@ -46,7 +46,10 @@ def _validate_text(name: str, value: str, max_len: int) -> str:
 
 def _questions_payload(questions: List[str], answers: List[str]) -> List[Tuple[str, str]]:
     qs = [q for q in (questions or []) if (q or "").strip()]
-    ans = answers or []
+    # Filter answers the same way so a partially-filled form doesn't
+    # produce a "must match" error. Empty trailing slots from the
+    # HTML form are discarded.
+    ans = [a for a in (answers or []) if (a or "").strip()]
     if not (QUESTIONS_MIN <= len(qs) <= QUESTIONS_MAX):
         raise ItemError(f"between {QUESTIONS_MIN} and {QUESTIONS_MAX} questions are required")
     if len(qs) != len(ans):
