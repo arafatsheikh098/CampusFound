@@ -166,6 +166,7 @@ def cmd_seed_demo(args: argparse.Namespace) -> int:
     """Insert a small deterministic demo dataset. Idempotent."""
     init_db()
     from app.items import service as item_svc
+    from app.security import hash_password
 
     now = datetime.utcnow()
     today = date.today()
@@ -197,7 +198,7 @@ def cmd_seed_demo(args: argparse.Namespace) -> int:
                 department="CSE",
                 batch_or_session="2020",
                 mobile="+8801711111111",
-                password_hash="x",  # placeholder; not used for login in demo
+                password_hash=hash_password("modpass12"),
                 is_member_confirmed=True,
                 is_adult_confirmed=True,
                 status=AccountStatus.APPROVED,
@@ -208,7 +209,13 @@ def cmd_seed_demo(args: argparse.Namespace) -> int:
             session.add(m)
         # Two demo members
         members = []
-        for i, mobile in enumerate(("+8801722222222", "+8801733333333"), start=1):
+        for i, (mobile, pw) in enumerate(
+            (
+                ("+8801722222222", "memberpass1"),
+                ("+8801733333333", "memberpass2"),
+            ),
+            start=1,
+        ):
             existing = session.exec(
                 select(User).where(User.mobile == mobile)
             ).one_or_none()
@@ -218,7 +225,7 @@ def cmd_seed_demo(args: argparse.Namespace) -> int:
                     department="CSE",
                     batch_or_session="2024",
                     mobile=mobile,
-                    password_hash="x",
+                    password_hash=hash_password(pw),
                     is_member_confirmed=True,
                     is_adult_confirmed=True,
                     status=AccountStatus.APPROVED,
