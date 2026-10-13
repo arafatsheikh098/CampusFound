@@ -14,7 +14,9 @@ from app.items import service as item_svc
 from app.models.category import Category
 from app.models.item import FoundItem
 from app.models.place import Place
+from app.models.report import ReportTarget
 from app.models.user import User
+from app.moderation import service as mod_svc
 from app.photos import service as photo_svc
 from app.photos.processing import PhotoError
 
@@ -354,3 +356,28 @@ async def withdraw_item(
 
     delete_photos_for_item(session, item)
     return RedirectResponse(url="/items", status_code=302)
+
+
+@router.post("/items/{item_id}/report")
+async def report_item(
+    request: Request,
+    item_id: int,
+    reason: str = Form(...),
+    user: User = Depends(require_member),
+    session: Session = Depends(get_session),
+):
+    await check_csrf(request)
+    item = session.get(FoundItem, item_id)
+    if item is None:
+        raise HTTPException(404, "item not found")
+    try:
+        mod_svc.file_report(
+            session,
+            by=user,
+            target_kind=ReportTarget.FOUND_ITEM,
+            target_id=item.id,
+            reason=reason,
+        )
+    except mod_svc.ModError as e:
+        raise HTTPException(400, str(e))
+    return RedirectResponse(url=f"/items/{item.id}", status_code=302)

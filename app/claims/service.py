@@ -127,6 +127,20 @@ def open_claim(
         extra={"item_id": item_id},
     )
     session.commit()
+
+    # Notify the finder that a new claim is awaiting their decision.
+    from app.notifications import service as notif_svc
+    from app.models.notification import NotificationKind
+
+    finder = session.get(User, item.finder_id)
+    notif_svc.create(
+        session,
+        user_id=item.finder_id,
+        kind=NotificationKind.NEW_CLAIM,
+        payload={"item_id": item.id, "claim_id": claim.id},
+    )
+    if finder and finder.telegram_chat_id:
+        notif_svc.send_telegram(finder.telegram_chat_id, "CampusFound: new claim on your post.")
     return claim
 
 
@@ -179,6 +193,21 @@ def decide_claim(
         extra={"item_id": item.id, "reason": claim.reason if not approve else ""},
     )
     session.commit()
+
+    # Notify the claimant.
+    from app.notifications import service as notif_svc
+    from app.models.notification import NotificationKind
+
+    claimant = session.get(User, claim.claimant_id)
+    notif_svc.create(
+        session,
+        user_id=claim.claimant_id,
+        kind=NotificationKind.CLAIM_APPROVED if approve else NotificationKind.CLAIM_REJECTED,
+        payload={"item_id": item.id, "claim_id": claim.id},
+    )
+    if claimant and claimant.telegram_chat_id:
+        msg = "CampusFound: claim approved." if approve else "CampusFound: claim rejected."
+        notif_svc.send_telegram(claimant.telegram_chat_id, msg)
     return claim
 
 
@@ -268,6 +297,23 @@ def confirm_returned(
         extra={"item_id": item.id, "both": both},
     )
     session.commit()
+    if both:
+        from app.notifications import service as notif_svc
+        from app.models.notification import NotificationKind
+
+        finder = session.get(User, item.finder_id)
+        claimant = session.get(User, claim.claimant_id)
+        for u in (finder, claimant):
+            if u is None:
+                continue
+            notif_svc.create(
+                session,
+                user_id=u.id,
+                kind=NotificationKind.ITEM_RETURNED,
+                payload={"item_id": item.id, "claim_id": claim.id},
+            )
+            if u.telegram_chat_id:
+                notif_svc.send_telegram(u.telegram_chat_id, "CampusFound: item returned.")
     return claim
 
 

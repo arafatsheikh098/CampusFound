@@ -5,7 +5,6 @@ Production refuses to start with the default SECRET_KEY.
 """
 from __future__ import annotations
 
-from functools import lru_cache
 from typing import List
 
 from pydantic import Field, field_validator
@@ -74,9 +73,33 @@ class Settings(BaseSettings):
             )
 
 
-@lru_cache(maxsize=1)
+# Module-level cache. Tests can call ``get_settings.cache_clear()`` to
+# reset; using the module attribute (rather than ``lru_cache``) means the
+# cache is reset whenever the module is reloaded via ``importlib.reload``
+# — important for test isolation when one test changes the env.
+_settings_cache: "Settings | None" = None
+
+
 def get_settings() -> Settings:
-    """Cached settings instance."""
-    s = Settings()
-    s.validate_production()
-    return s
+    """Return a process-wide cached Settings instance.
+
+    Tests that change env vars should call ``get_settings.cache_clear()``
+    (or ``app.config.get_settings.cache_clear()``) before re-reading.
+    """
+    global _settings_cache
+    if _settings_cache is None:
+        s = Settings()
+        s.validate_production()
+        _settings_cache = s
+    return _settings_cache
+
+
+def _clear_cache() -> None:
+    """Test helper: drop the cached Settings instance."""
+    global _settings_cache
+    _settings_cache = None
+
+
+# Provide a ``cache_clear`` attribute so existing call sites that use
+# ``get_settings.cache_clear()`` keep working.
+get_settings.cache_clear = _clear_cache  # type: ignore[attr-defined]

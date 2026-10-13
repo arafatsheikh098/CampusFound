@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ t("site.notifications") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("site.notifications") }}</h2>
+
+  <form method="post" action="/notifications/read-all" style="margin-bottom: 1rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn secondary" type="submit">{{ t("notif.mark_all_read") }}</button>
+  </form>
+
+  {% if notifications %}
+    <ul class="items">
+      {% for n in notifications %}
+        <li>
+          <strong>{{ t("notif." ~ n.kind.value) }}</strong>
+          <span class="muted">— {{ n.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
+          {% if not n.is_read %}<span class="badge">{{ t("site.unread") }}</span>{% endif %}
+          {% if n.payload.get("item_id") %}
+            <a class="btn secondary" href="/items/{{ n.payload['item_id'] }}">{{ t("notif.view_item") }}</a>
+          {% endif %}
+          {% if n.payload.get("claim_id") %}
+            <a class="btn secondary" href="/claims/{{ n.payload['claim_id'] }}">{{ t("notif.view_claim") }}</a>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">{{ t("notif.none") }}</p>
+  {% endif %}
+
+  <h3>{{ t("notif.telegram_title") }}</h3>
+  {% if not telegram_enabled %}
+    <p class="muted">{{ t("notif.telegram_disabled") }}</p>
+  {% elif current_user.telegram_chat_id %}
+    <p class="ok">{{ t("notif.telegram_linked") }}</p>
+  {% else %}
+    <p>{{ t("notif.telegram_help") }}</p>
+    {% if telegram_link_code %}
+      <p><code>{{ telegram_link_code }}</code></p>
+    {% endif %}
+    <form method="post" action="/notifications/telegram-link">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn" type="submit">{{ t("notif.telegram_generate") }}</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

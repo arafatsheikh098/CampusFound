@@ -11,6 +11,7 @@ from app.models.notification import Notification, NotificationKind
 from app.models.photo import Photo
 from app.models.place import Place
 from app.models.recovery_code import RecoveryCode
+from app.models.report import Report, ReportTarget
 from app.models.user import AccountStatus, User
 
 __all__ = [
@@ -30,6 +31,8 @@ __all__ = [
     "Photo",
     "Place",
     "RecoveryCode",
+    "Report",
+    "ReportTarget",
     "User",
     "VerificationQuestion",
 ]

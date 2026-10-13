@@ -54,6 +54,7 @@ def create_app() -> FastAPI:
         status_code: int = 200,
     ) -> HTMLResponse:
         from app.csrf import csrf_token_for
+        from app.notifications import service as notif_svc
 
         ctx = {
             "t": lambda key, **kw: t(key, lang=_select_lang(request), **kw),
@@ -69,6 +70,18 @@ def create_app() -> FastAPI:
         }
         if context:
             ctx.update(context)
+        # If a route provided a current_user, compute unread_count for the
+        # base.html nav badge. We open a short-lived session to do this so
+        # callers do not have to remember to pass it in.
+        cu = ctx.get("current_user")
+        if cu is not None and getattr(cu, "id", None) is not None:
+            from app.db import session_scope
+
+            try:
+                with session_scope() as s:
+                    ctx["unread_count"] = notif_svc.unread_count(s, cu.id)
+            except Exception:
+                ctx["unread_count"] = 0
         return templates.TemplateResponse(template, ctx, status_code=status_code)
 
     app.state.render = render
@@ -128,6 +141,7 @@ def create_app() -> FastAPI:
     from app.lost.routes import router as lost_router  # noqa: E402
     from app.moderation.routes import router as moderation_router  # noqa: E402
     from app.notifications.routes import router as notifications_router  # noqa: E402
+    from app.notifications.telegram import router as telegram_router  # noqa: E402
     from app.photos.routes import router as photos_router  # noqa: E402
     from app.places.routes import router as places_router  # noqa: E402
 
@@ -140,6 +154,7 @@ def create_app() -> FastAPI:
     app.include_router(moderation_router)
     app.include_router(notifications_router)
     app.include_router(photos_router)
+    app.include_router(telegram_router)
 
     return app
 

@@ -15,7 +15,9 @@ from app.matching.suggest import suggest_for_lost_report
 from app.models.category import Category
 from app.models.lost_report import LostReport
 from app.models.place import Place
+from app.models.report import ReportTarget
 from app.models.user import User
+from app.moderation import service as mod_svc
 
 router = APIRouter()
 
@@ -173,3 +175,28 @@ async def mark_found(
     except lost_svc.LostReportError as e:
         raise HTTPException(400, str(e))
     return RedirectResponse(url="/lost/mine", status_code=302)
+
+
+@router.post("/lost/{report_id}/report")
+async def report_lost(
+    request: Request,
+    report_id: int,
+    reason: str = Form(...),
+    user: User = Depends(require_member),
+    session: Session = Depends(get_session),
+):
+    await check_csrf(request)
+    report = session.get(LostReport, report_id)
+    if report is None:
+        raise HTTPException(404, "report not found")
+    try:
+        mod_svc.file_report(
+            session,
+            by=user,
+            target_kind=ReportTarget.LOST_REPORT,
+            target_id=report.id,
+            reason=reason,
+        )
+    except mod_svc.ModError as e:
+        raise HTTPException(400, str(e))
+    return RedirectResponse(url=f"/lost/{report.id}", status_code=302)

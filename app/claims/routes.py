@@ -20,7 +20,9 @@ from app.models.claim import Claim, ClaimStatus
 from app.models.category import Category
 from app.models.item import FoundItem
 from app.models.place import Place
+from app.models.report import ReportTarget
 from app.models.user import User
+from app.moderation import service as mod_svc
 
 router = APIRouter()
 
@@ -207,3 +209,28 @@ async def confirm_returned(
     except claim_svc.ClaimError as e:
         raise HTTPException(400, str(e))
     return RedirectResponse(url=f"/claims/{claim_id}", status_code=302)
+
+
+@router.post("/claims/{claim_id}/report")
+async def report_claim(
+    request: Request,
+    claim_id: int,
+    reason: str = Form(...),
+    user: User = Depends(require_member),
+    session: Session = Depends(get_session),
+):
+    await check_csrf(request)
+    claim = session.get(Claim, claim_id)
+    if claim is None:
+        raise HTTPException(404, "claim not found")
+    try:
+        mod_svc.file_report(
+            session,
+            by=user,
+            target_kind=ReportTarget.CLAIM,
+            target_id=claim.id,
+            reason=reason,
+        )
+    except mod_svc.ModError as e:
+        raise HTTPException(400, str(e))
+    return RedirectResponse(url=f"/claims/{claim.id}", status_code=302)

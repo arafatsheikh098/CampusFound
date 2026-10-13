@@ -51,7 +51,9 @@
     <nav class="row" style="gap: 8px;">
       {% if current_user %}
         <a href="/items">{{ t("site.search") }}</a>
-        <a href="/lost/new">{{ t("lost.new_title") if false else "Lost something" }}</a>
+        <a href="/lost">{{ t("lost.list_title") }}</a>
+        <a href="/lost/mine">{{ t("lost.mine_title") }}</a>
+        <a href="/lost/new">{{ t("lost.new_title") }}</a>
         <a href="/notifications">{{ t("site.notifications") }}{% if unread_count %} <span class="badge">{{ unread_count }}</span>{% endif %}</a>
         {% if current_user.is_moderator %}<a href="/moderation">{{ t("site.moderation") }}</a>{% endif %}
         <form method="post" action="/logout" style="display: inline;">

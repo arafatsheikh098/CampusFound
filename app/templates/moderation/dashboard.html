@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ t("site.moderation") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("site.moderation") }}</h2>
+
+  <h3>{{ t("mod.pending_accounts") }}</h3>
+  {% if pending %}
+    <ul class="items">
+    {% for u in pending %}
+      <li>
+        <strong>{{ u.full_name }}</strong> — {{ u.department }} ({{ u.batch_or_session }}) — {{ u.mobile }}
+        <form method="post" action="/moderation/users/{{ u.id }}/status" style="display: inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="hidden" name="new_status" value="approved">
+          <button class="btn" type="submit">{{ t("mod.approve") }}</button>
+        </form>
+        <form method="post" action="/moderation/users/{{ u.id }}/status" style="display: inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="hidden" name="new_status" value="rejected">
+          <button class="btn danger" type="submit">{{ t("mod.reject") }}</button>
+        </form>
+      </li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">{{ t("mod.no_pending") }}</p>
+  {% endif %}
+
+  <h3>{{ t("mod.suspended_accounts") }}</h3>
+  {% if suspended %}
+    <ul class="items">
+    {% for u in suspended %}
+      <li>
+        <strong>{{ u.full_name }}</strong> — {{ u.mobile }}
+        <form method="post" action="/moderation/users/{{ u.id }}/status" style="display: inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="hidden" name="new_status" value="approved">
+          <button class="btn" type="submit">{{ t("mod.unsuspend") }}</button>
+        </form>
+      </li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">{{ t("mod.no_suspended") }}</p>
+  {% endif %}
+
+  <h3>{{ t("mod.open_reports") }}</h3>
+  {% if reports %}
+    <ul class="items">
+    {% for r in reports %}
+      <li>
+        <strong>{{ r.target_kind.value }} #{{ r.target_id }}</strong>
+        <span class="muted">— {{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
+        <div>{{ r.reason }}</div>
+        <form method="post" action="/moderation/reports/{{ r.id }}/resolve" style="display: inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="btn" type="submit">{{ t("mod.resolve") }}</button>
+        </form>
+      </li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">{{ t("mod.no_reports") }}</p>
+  {% endif %}
+</section>
+{% endblock %}
