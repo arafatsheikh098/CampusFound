@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import Session, select
 
@@ -15,6 +15,8 @@ from app.models.category import Category
 from app.models.item import FoundItem
 from app.models.place import Place
 from app.models.user import User
+from app.photos import service as photo_svc
+from app.photos.processing import PhotoError
 
 router = APIRouter()
 
@@ -54,6 +56,7 @@ async def create_item(
     a2: str = Form(""),
     q3: str = Form(""),
     a3: str = Form(""),
+    photos: List[UploadFile] = File(default=[]),
     user: User = Depends(require_member),
     session: Session = Depends(get_session),
 ):
@@ -64,6 +67,7 @@ async def create_item(
         raise HTTPException(400, "date_found must be YYYY-MM-DD")
     questions = [q1, q2, q3]
     answers = [a1, a2, a3]
+    has_photo = any(p is not None and p.filename for p in photos)
     try:
         item = item_svc.create_item(
             session,
@@ -76,7 +80,7 @@ async def create_item(
             custody_requested=custody,
             questions=questions,
             answers=answers,
-            has_photo=False,  # photos are added in M4
+            has_photo=has_photo,
         )
     except item_svc.ItemError as e:
         cats = session.exec(select(Category).where(Category.is_active.is_(True)).order_by(Category.name)).all()
@@ -101,6 +105,40 @@ async def create_item(
             },
             status_code=400,
         )
+
+    # Photo upload (best-effort; failures fall back to the form).
+    if has_photo:
+        try:
+            uploads = []
+            for f in photos:
+                if not f or not f.filename:
+                    continue
+                uploads.append((f.file.read(), f.filename))
+            photo_svc.attach_photos(session, item=item, uploads=uploads, by=user)
+        except PhotoError as e:
+            cats = session.exec(select(Category).where(Category.is_active.is_(True)).order_by(Category.name)).all()
+            places = session.exec(select(Place).where(Place.is_active.is_(True)).order_by(Place.name)).all()
+            return request.app.state.render(
+                request,
+                "items/new.html",
+                {
+                    "categories": cats,
+                    "places": places,
+                    "current_user": user,
+                    "form": {
+                        "category_id": category_id,
+                        "place_id": place_id,
+                        "date_found": date_found,
+                        "description": description,
+                        "handover_note": handover_note,
+                        "custody": custody,
+                        "q1": q1, "a1": a1, "q2": q2, "a2": a2, "q3": q3, "a3": a3,
+                    },
+                    "error": str(e),
+                },
+                status_code=400,
+            )
+
     return RedirectResponse(url=f"/items/{item.id}", status_code=302)
 
 
@@ -244,4 +282,8 @@ async def withdraw_item(
         item_svc.withdraw_item(session, item=item, by=user)
     except item_svc.ItemError as e:
         raise HTTPException(400, str(e))
+    # Photos for withdrawn posts are removed (F4.5).
+    from app.photos.service import delete_photos_for_item
+
+    delete_photos_for_item(session, item)
     return RedirectResponse(url="/items", status_code=302)

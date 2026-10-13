@@ -4,12 +4,10 @@ Bytes are validated, metadata-stripped, re-encoded and downscaled by
 ``app.photos.processing`` before they ever reach here. The
 ``mime_type`` is the canonical WebP or JPEG mime we re-encoded to.
 """
-from __future__ import annotations
-
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class Photo(SQLModel, table=True):
@@ -23,3 +21,5 @@ class Photo(SQLModel, table=True):
     bytes_: bytes = Field(default=b"", sa_column_kwargs={"name": "data"})
     sha256: str = Field(max_length=64, index=True)
     created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
+
+    item: Optional["FoundItem"] = Relationship(back_populates="photos")
