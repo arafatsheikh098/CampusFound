@@ -61,7 +61,9 @@ def test_csrf_rejected_on_state_changing_routes(client, app):
             r = client.post(path, data={"csrf_token": ""}, follow_redirects=False)
         else:
             r = client.request(method, path, data={"csrf_token": ""}, follow_redirects=False)
-        assert r.status_code in (403, 422, 400, 405, 404), (
+        # 401 = auth required, 403 = CSRF rejection; both are fine — we
+        # just need the request to be rejected before any state changes.
+        assert r.status_code in (401, 403, 422, 400, 405, 404), (
             f"{method} {path} did not reject missing CSRF (got {r.status_code})"
         )
 

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ t("items.edit_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("items.edit_title") }}</h2>
+  <form method="post" action="/items/{{ item.id }}/edit">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>{{ t("items.date_found") }} <input type="date" name="date_found" required value="{{ item.date_found.isoformat() }}"></label>
+    <label>{{ t("items.description") }} <textarea name="description" maxlength="300" required>{{ item.description }}</textarea></label>
+    <label>{{ t("items.handover_note") }} <textarea name="handover_note" maxlength="150">{{ item.handover_note }}</textarea></label>
+    <h3>{{ t("items.questions_title") }}</h3>
+    <label>1. <input name="q1" maxlength="120" value="{{ q1 }}"></label>
+    <label>{{ t("items.answer") }} 1 <input name="a1" maxlength="120" value="{{ a1 }}"></label>
+    <label>2. <input name="q2" maxlength="120" value="{{ q2 }}"></label>
+    <label>{{ t("items.answer") }} 2 <input name="a2" maxlength="120" value="{{ a2 }}"></label>
+    <label>3. <input name="q3" maxlength="120" value="{{ q3 }}"></label>
+    <label>{{ t("items.answer") }} 3 <input name="a3" maxlength="120" value="{{ a3 }}"></label>
+    <button class="btn" type="submit">{{ t("site.save") }}</button>
+    <a class="btn secondary" href="/items/{{ item.id }}">{{ t("site.cancel") }}</a>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ t("items.view_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ category.name }} — {{ place.name }}</h2>
+  <p class="muted">{{ t("items.date_found") }}: {{ item.date_found.isoformat() }}</p>
+  {% if category.sensitive %}
+    <p>{{ t("items.sensitive_text") }}</p>
+  {% else %}
+    <p>{{ item.description }}</p>
+  {% endif %}
+  {% if item.handover_note %}
+    {% if item.custody.value == 'office' %}
+      <p><strong>{{ t("items.handover_office") }}:</strong> {{ item.handover_note }}</p>
+    {% else %}
+      <p><strong>{{ t("items.handover_note") }}:</strong> {{ item.handover_note }}</p>
+    {% endif %}
+  {% endif %}
+  {% if can_see_answers %}
+    <h3>{{ t("items.questions_title") }} (private)</h3>
+    <ol>
+      {% for q in item.questions %}<li><strong>{{ q.question }}</strong> &rarr; <em>{{ q.answer }}</em></li>{% endfor %}
+    </ol>
+  {% else %}
+    <p class="muted">{{ t("items.questions_owner_only") }}</p>
+  {% endif %}
+  {% if can_edit %}
+    <div class="row">
+      <a class="btn" href="/items/{{ item.id }}/edit">{{ t("items.edit") }}</a>
+      <form method="post" action="/items/{{ item.id }}/withdraw" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn danger" type="submit">{{ t("items.withdraw") }}</button>
+      </form>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

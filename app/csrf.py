@@ -36,13 +36,17 @@ def verify_token(token: str, session_id: str) -> bool:
 
 
 def get_or_create_session_id(request: Request) -> str:
-    """Return the session id from the cookie, or create one (used by M1
-    base template to render CSRF tokens; M2 will sign and persist it).
+    """Return the session id from ``request.state`` (set by the security
+    middleware) or the cookie. Falls back to a random value if neither
+    is available.
     """
+    sid = getattr(request.state, "cf_sid", None)
+    if sid:
+        return sid
     sid = request.cookies.get("cf_sid")
-    if not sid:
-        sid = secrets.token_urlsafe(24)
-    return sid
+    if sid:
+        return sid
+    return secrets.token_urlsafe(24)
 
 
 def csrf_token_for(request: Request) -> str:

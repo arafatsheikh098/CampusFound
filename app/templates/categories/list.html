@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ t("categories.title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("categories.title") }}</h2>
+  <ul>
+    {% for c in categories %}
+      <li>
+        {{ c.name }}
+        {% if c.sensitive %}<span class="badge sensitive">{{ t("categories.sensitive") }}</span>{% endif %}
+        {% if is_moderator %}
+          <form method="post" action="/categories/{{ c.id }}/toggle-sensitive" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="btn secondary" type="submit">{{ t("categories.toggle_sensitive") }}</button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% if is_moderator %}
+  <h3>{{ t("categories.add") }}</h3>
+  <form method="post" action="/categories">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>{{ t("categories.name") }} <input name="name" required maxlength="120"></label>
+    <label><input type="checkbox" name="sensitive" value="1"> {{ t("categories.sensitive_label") }}</label>
+    <button class="btn" type="submit">{{ t("site.save") }}</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}
