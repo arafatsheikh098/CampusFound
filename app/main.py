@@ -94,6 +94,16 @@ def create_app() -> FastAPI:
     # Security headers on every response
     app.add_middleware(SecurityHeadersMiddleware)
 
+    # Trusted hosts (host header validation). In development the default
+    # is "*" which disables this; in production deployments should set
+    # TRUSTED_HOSTS to the actual host(s).
+    from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
+    if settings.trusted_host_list != ["*"]:
+        app.add_middleware(
+            TrustedHostMiddleware, allowed_hosts=settings.trusted_host_list
+        )
+
     # Logging
     logging.basicConfig(
         level=logging.INFO,
