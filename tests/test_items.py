@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+
 from freezegun import freeze_time
 
 from app.auth import service as auth_svc

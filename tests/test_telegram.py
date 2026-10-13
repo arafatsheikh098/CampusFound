@@ -75,8 +75,9 @@ def test_webhook_unknown_code_no_op(client: TestClient, monkeypatch):
     monkeypatch.setenv("TELEGRAM_WEBHOOK_SECRET", "s2")
     from app.config import get_settings
     get_settings.cache_clear()
-    from app.main import create_app
     from fastapi.testclient import TestClient
+
+    from app.main import create_app
     c2 = TestClient(create_app())
     r = c2.post(
         "/telegram/webhook",
@@ -98,8 +99,9 @@ def test_webhook_non_start_text_is_noop(client: TestClient, monkeypatch):
     monkeypatch.setenv("TELEGRAM_WEBHOOK_SECRET", "s3")
     from app.config import get_settings
     get_settings.cache_clear()
-    from app.main import create_app
     from fastapi.testclient import TestClient
+
+    from app.main import create_app
     c2 = TestClient(create_app())
     r = c2.post(
         "/telegram/webhook",

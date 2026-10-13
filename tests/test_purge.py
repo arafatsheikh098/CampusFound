@@ -4,6 +4,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 
 from freezegun import freeze_time
+from sqlmodel import select
 
 from app import cli
 from app.audit import write_audit
@@ -15,7 +16,6 @@ from app.models.category import Category
 from app.models.item import FoundItem, ItemStatus
 from app.models.place import Place
 from app.models.user import AccountStatus, User
-from sqlmodel import select
 
 
 def _user(mobile, mod=False, status=AccountStatus.APPROVED):

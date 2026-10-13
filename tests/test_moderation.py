@@ -85,7 +85,6 @@ def test_set_account_status_blocks_non_moderator():
     mod, target, _ = _setup()
     regular = _user("+8801700000099")
     with session_scope() as s:
-        mod_obj = s.get(User, mod.id)
         target_obj = s.get(User, target.id)
         regular_obj = s.get(User, regular.id)
         with pytest.raises(mod_svc.ModError):
@@ -116,7 +115,7 @@ def test_file_report_strips_and_saves():
     mod, target, item = _setup()
     with session_scope() as s:
         target_obj = s.get(User, target.id)
-        r = mod_svc.file_report(
+        mod_svc.file_report(
             s, by=target_obj,
             target_kind=ReportTarget.FOUND_ITEM,
             target_id=item.id,

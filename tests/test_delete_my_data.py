@@ -86,7 +86,7 @@ def test_delete_my_data_removes_user_and_items_and_claims_and_lost_reports():
 
 
 def test_delete_my_data_writes_audit_row():
-    target = _user("+8801777777777")
+    _user("+8801777777777")
     with session_scope() as s:
         before = len(s.exec(
             select(AuditLog).where(AuditLog.action == "user_data_deleted")

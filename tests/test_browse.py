@@ -98,12 +98,12 @@ def test_keyword_search_case_insensitive():
 def test_keyword_search_bangla():
     _seed_items()
     with session_scope() as s:
-        from app.models.item import FoundItem
         from sqlmodel import select
+
+        from app.models.item import FoundItem
         u = s.get(User, 1)  # any user
         # Insert a Bangla description item.
         from datetime import date as _date
-        c = s.get(Category, None)
         c_id = s.exec(select(Category)).first().id
         p_id = s.exec(select(Place)).first().id
         item = FoundItem(

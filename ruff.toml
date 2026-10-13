@@ -9,4 +9,5 @@ ignore = [
     "B904",  # raise from in except
     "E402",  # module-level import not at top (needed for circular imports in FastAPI)
     "F401",  # unused import (re-exports for tests)
+    "F821",  # forward-reference names in model Relationship() are valid string annotations
 ]

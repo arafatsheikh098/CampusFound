@@ -47,6 +47,7 @@ def test_sensitive_list_leaks_no_private_field(client: TestClient):
         s.refresh(c)
         s.refresh(p)
         from datetime import date
+
         from app.models.user import User
         u2 = s.get(User, u.id)
         item_svc.create_item(
@@ -81,6 +82,7 @@ def test_logged_out_member_item_page_is_login(client: TestClient):
         s.refresh(c)
         s.refresh(p)
         from datetime import date
+
         from app.models.user import User
         u2 = s.get(User, u.id)
         item = item_svc.create_item(

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import date
 
+from sqlmodel import select
+
 from app.audit import write_audit
 from app.auth import service as auth_svc
 from app.claims import service as claim_svc
@@ -13,7 +15,6 @@ from app.models.audit import AuditLog
 from app.models.category import Category
 from app.models.place import Place
 from app.models.user import AccountStatus, User
-from sqlmodel import select
 
 
 def _user(mobile):

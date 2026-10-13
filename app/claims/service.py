@@ -129,8 +129,8 @@ def open_claim(
     session.commit()
 
     # Notify the finder that a new claim is awaiting their decision.
-    from app.notifications import service as notif_svc
     from app.models.notification import NotificationKind
+    from app.notifications import service as notif_svc
 
     finder = session.get(User, item.finder_id)
     notif_svc.create(
@@ -195,8 +195,8 @@ def decide_claim(
     session.commit()
 
     # Notify the claimant.
-    from app.notifications import service as notif_svc
     from app.models.notification import NotificationKind
+    from app.notifications import service as notif_svc
 
     claimant = session.get(User, claim.claimant_id)
     notif_svc.create(
@@ -298,8 +298,8 @@ def confirm_returned(
     )
     session.commit()
     if both:
-        from app.notifications import service as notif_svc
         from app.models.notification import NotificationKind
+        from app.notifications import service as notif_svc
 
         finder = session.get(User, item.finder_id)
         claimant = session.get(User, claim.claimant_id)

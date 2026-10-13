@@ -16,8 +16,8 @@ from sqlmodel import Session, select
 from app.claims import service as claim_svc
 from app.db import get_session
 from app.deps import check_csrf, get_current_user_optional, require_member
-from app.models.claim import Claim, ClaimStatus
 from app.models.category import Category
+from app.models.claim import Claim, ClaimStatus
 from app.models.item import FoundItem
 from app.models.place import Place
 from app.models.report import ReportTarget

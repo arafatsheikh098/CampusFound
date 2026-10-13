@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 from typing import List, Optional, Tuple
 
-from sqlalchemy import or_, and_
+from sqlalchemy import and_, or_
 from sqlmodel import Session, select
 
 from app.audit import write_audit
@@ -13,7 +13,6 @@ from app.models.category import Category
 from app.models.item import Custody, FoundItem, ItemStatus, VerificationQuestion
 from app.models.place import Place
 from app.models.user import User
-
 
 # Field limits from SCOPE
 DESCRIPTION_MAX = 300

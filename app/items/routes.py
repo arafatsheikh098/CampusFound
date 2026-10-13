@@ -152,13 +152,14 @@ def list_items(
 ):
     if user is None or user.status.value != "approved":
         return RedirectResponse(url="/login", status_code=302)
+    from sqlmodel import select as _sel
+
     from app.items.search import (
         SearchParams,
         parse_date,
         parse_int,
         search,
     )
-    from sqlmodel import select as _sel
 
     params = SearchParams(
         q=request.query_params.get("q", ""),
