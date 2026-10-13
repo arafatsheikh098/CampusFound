@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ t("auth.recovery_codes_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("auth.recovery_codes_title") }}</h2>
+  <p class="err">{{ t("auth.recovery_codes_warn") }}</p>
+  <ul>
+    {% for code in codes %}<li><code>{{ code }}</code></li>{% endfor %}
+  </ul>
+  <a class="btn" href="/login">{{ t("site.login") }}</a>
+</section>
+{% endblock %}

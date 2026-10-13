@@ -6,8 +6,6 @@ to the office because the category is sensitive or the finder chose office).
 Private verification questions/answers live in ``VerificationQuestion`` so
 they are easy to keep out of the default item SELECT.
 """
-from __future__ import annotations
-
 from datetime import date, datetime
 from enum import Enum
 from typing import List, Optional

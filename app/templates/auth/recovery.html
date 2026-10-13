@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ t("auth.recovery_title") }}{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>{{ t("auth.recovery_title") }}</h2>
+  {% if error %}<div class="flash err">{{ error }}</div>{% endif %}
+  <p class="muted">{{ t("auth.recovery_text") }}</p>
+  <form method="post" action="/recovery/generate">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>{{ t("auth.identifier") }} <input name="identifier" required></label>
+    <button class="btn" type="submit">{{ t("auth.recovery_generate") }}</button>
+  </form>
+  <hr>
+  <form method="post" action="/recovery/use">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>{{ t("auth.identifier") }} <input name="identifier" required></label>
+    <label>{{ t("auth.recovery_code") }} <input name="code" required></label>
+    <button class="btn secondary" type="submit">{{ t("auth.recovery_use") }}</button>
+  </form>
+</section>
+{% endblock %}
