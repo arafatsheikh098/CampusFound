@@ -5,6 +5,41 @@ community claims them by answering short verification questions, and a
 moderator approves the handover. Built as a privacy-respecting
 FastAPI/SQLModel application with English and Bangla UI.
 
+## Screenshots
+
+A picture is worth a thousand lines of docs. Here's what the running app
+actually looks like (captured from a local instance with `seed-demo`
+data — see [docs/screenshots/](docs/screenshots/) for the full set).
+
+| Landing | Browse items |
+| --- | --- |
+| ![Landing](docs/screenshots/01-landing.png) | ![Browse items](docs/screenshots/04-browse-items.png) |
+
+| Item detail (as claimant) | Claim form |
+| --- | --- |
+| ![Item detail](docs/screenshots/05b-item-detail-claimable.png) | ![Claim form](docs/screenshots/06-claim-form.png) |
+
+| Lost report | Moderation dashboard |
+| --- | --- |
+| ![Lost report](docs/screenshots/07-lost-report.png) | ![Moderation](docs/screenshots/09-moderation-dashboard.png) |
+
+| English | Bangla |
+| --- | --- |
+| ![English landing](docs/screenshots/01-landing.png) | ![Bangla landing](docs/screenshots/11-landing-bangla.png) |
+
+### Demo GIF (placeholder)
+
+> **Status:** not yet recorded. A 15–30 s screen capture walking through
+> "post a found item → claim it with a question → moderator approves" would
+> sit here. Recording instructions:
+>
+> 1. Run the app locally with `seed-demo` data (see Quick start below).
+> 2. Use `ffmpeg -f avfoundation -i "1" -t 30 demo.gif` (macOS) or any
+>    screen recorder.
+> 3. Convert with `ffmpeg -i demo.mov -vf "fps=15,scale=900:-1" demo.gif`.
+> 4. Save the result as `docs/screenshots/demo.gif` and replace this
+>    placeholder with `![Demo](docs/screenshots/demo.gif)`.
+
 ## Features
 
 - Signup with Bangladesh mobile number, gated by moderator approval
@@ -47,6 +82,8 @@ cp .env.example .env
 # 5. Run
 .venv/bin/python -m uvicorn app.main:app --reload --port 8000
 # Open http://127.0.0.1:8000/
+# (If you'd like to regenerate the README screenshots, see
+#  docs/screenshots/README.md.)
 
 # 6. Tests
 .venv/bin/python -m pytest -q
