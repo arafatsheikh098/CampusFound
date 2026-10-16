@@ -52,4 +52,8 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_report_created_at'))
 
     op.drop_table('report')
+
+    bind = op.get_bind()
+    if bind and bind.dialect.name == "postgresql":
+        sa.Enum(name="reporttarget").drop(bind, checkfirst=True)
     # ### end Alembic commands ###
